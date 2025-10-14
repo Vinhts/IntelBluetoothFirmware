@@ -5,35 +5,30 @@ on:
     branches: [ main, master ]
   pull_request:
     branches: [ main, master ]
-  workflow_dispatch: # Cho phép build thủ công
+  workflow_dispatch:
 
 jobs:
-  build:
+  build-release:
     runs-on: macos-latest
     
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
       
-    - name: Build IntelBluetoothFirmware
-      run: |
-        make
+    - name: Setup Xcode
+      uses: maxim-lobanov/setup-xcode@v1
+      with:
+        xcode-version: '15.0'
         
-    - name: List build artifacts
+    - name: Build Release Kexts
       run: |
-        ls -la Build/
-        find Build -name "*.kext" -type d
+        echo "Building Release version..."
+        xcodebuild -configuration Release -project IntelBTPatcher/IntelBTPatcher.xcodeproj
+        echo "Build completed!"
         
     - name: Upload Release Kexts
       uses: actions/upload-artifact@v4
       with:
-        name: IntelBluetoothFirmware-Release
-        path: Build/
-        retention-days: 30
-        
-    - name: Upload Debug Kexts
-      uses: actions/upload-artifact@v4
-      with:
-        name: IntelBluetoothFirmware-Debug
-        path: Build/Debug/
+        name: IntelBTPatcher-Release
+        path: IntelBTPatcher/Build/Release/IntelBTPatcher.kext
         retention-days: 30
