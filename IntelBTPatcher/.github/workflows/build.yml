@@ -1,0 +1,39 @@
+name: Build IntelBluetoothFirmware
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch: # Cho phép build thủ công
+
+jobs:
+  build:
+    runs-on: macos-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Build IntelBluetoothFirmware
+      run: |
+        make
+        
+    - name: List build artifacts
+      run: |
+        ls -la Build/
+        find Build -name "*.kext" -type d
+        
+    - name: Upload Release Kexts
+      uses: actions/upload-artifact@v4
+      with:
+        name: IntelBluetoothFirmware-Release
+        path: Build/
+        retention-days: 30
+        
+    - name: Upload Debug Kexts
+      uses: actions/upload-artifact@v4
+      with:
+        name: IntelBluetoothFirmware-Debug
+        path: Build/Debug/
+        retention-days: 30
