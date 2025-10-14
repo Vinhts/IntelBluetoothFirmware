@@ -43,6 +43,20 @@ static KernelPatcher::KextInfo IntelBTPatcher_IOUsbHostInfo {
     KernelPatcher::KextInfo::Unloaded
 };
 
+static const char *IntelBTPatcher_IOUSBHostFamily[] {
+    "/System/Library/Extensions/IOUSBHostFamily.kext/Contents/MacOS/IOUSBHostFamily" };
+
+static KernelPatcher::KextInfo IntelBTPatcher_IOUsbHostInfo {
+    "com.apple.iokit.IOUSBHostFamily",
+    IntelBTPatcher_IOUSBHostFamily,
+    1,
+    {true, true},
+    {},
+    KernelPatcher::KextInfo::Unloaded
+};
+
+
+
 bool CIntelBTPatcher::_randomAddressInit = false;
 bool CIntelBTPatcher::_enableBTLEFix = false;
 
@@ -59,7 +73,8 @@ bool CIntelBTPatcher::init() {
     return true;
 }
 
-void CIntelBTPatcher::free() {}
+void CIntelBTPatcher::free()
+
 
 void CIntelBTPatcher::processKext(KernelPatcher &patcher, size_t index, mach_vm_address_t address, size_t size) {
     if (IntelBTPatcher_IOUsbHostInfo.loadIndex == index) {
