@@ -1,0 +1,34 @@
+name: Build IntelBluetoothFirmware
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build-release:
+    runs-on: macos-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Xcode
+      uses: maxim-lobanov/setup-xcode@v1
+      with:
+        xcode-version: '15.0'
+        
+    - name: Build Release Kexts
+      run: |
+        echo "Building Release version..."
+        xcodebuild -configuration Release -project IntelBTPatcher/IntelBTPatcher.xcodeproj
+        echo "Build completed!"
+        
+    - name: Upload Release Kexts
+      uses: actions/upload-artifact@v4
+      with:
+        name: IntelBTPatcher-Release
+        path: IntelBTPatcher/Build/Release/IntelBTPatcher.kext
+        retention-days: 30
