@@ -42,7 +42,35 @@ typedef struct __attribute__((packed))
     uint8_t     data[];
 } HciResponse;
 
-const char* _hexDumpHCIData(uint8_t *buf, size_t len);
+const char *requestDirectionNames[] = {
+    "OUT",
+    "IN"
+};
+
+const char *requestTypeNames[] = {
+    "Standard",
+    "Class",
+    "Vendor"
+};
+
+const char *requestRecipientNames[] = {
+    "Device",
+    "Interface",
+    "Endpoint",
+    "Other"
+};
+
+const char* _hexDumpHCIData(uint8_t *buf, size_t len)
+{
+    ssize_t str_len = len * 3 + 1;
+    char *str = (char*)IOMalloc(str_len);
+    if (!str)
+        return nullptr;
+    for (size_t i = 0; i < len; i++)
+    snprintf(str + 3 * i, (len - i) * 3, "%02x ", buf[i]);
+    str[MAX(str_len - 2, 0)] = 0;
+    return str;
+}
 
 class CIntelBTPatcher {
 public:
