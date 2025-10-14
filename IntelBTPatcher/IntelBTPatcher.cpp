@@ -1,4 +1,5 @@
 //
+// chưa đối chiếu hết .cpp. Còn hpp ok
 //  IntelBTPatcher.cpp
 //  IntelBTPatcher
 //
