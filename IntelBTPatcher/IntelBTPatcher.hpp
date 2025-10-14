@@ -1,3 +1,27 @@
+//
+//  IntelBTPatcher.h
+//  IntelBTPatcher
+//
+//  Created by zxystd <zxystd@foxmail.com> on 2021/2/8.
+//
+
+#ifndef IntelBTPatcher_h
+#define IntelBTPatcher_h
+
+#include <Headers/kern_patcher.hpp>
+
+#include <IOKit/usb/IOUSBHostDevice.h>
+
+#define DRV_NAME "ibtp"
+
+class BluetoothDeviceAddress;
+
+typedef struct {
+    void *owner;
+    void *dataBuffer;
+    void *action;
+} AsyncOwnerData;
+
 class CIntelBTPatcher {
 public:
     bool init();
@@ -29,3 +53,5 @@ private:
     static bool _randomAddressInit;
     static bool _enablePR446;
 };
+
+#endif /* IntelBTPatcher_h */
