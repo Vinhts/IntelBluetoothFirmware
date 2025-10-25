@@ -1,57 +1,61 @@
 //
-//  IntelBTPatcher.h
+//  IntelBTPatcher.hpp
 //  IntelBTPatcher
 //
-//  Created by zxystd <zxystd@foxmail.com> on 2021/2/8.
+//  Created by lshbluesky on …
+//  Copyright © 2025 lshbluesky. All rights reserved.
 //
 
-#ifndef IntelBTPatcher_h
-#define IntelBTPatcher_h
+#ifndef IntelBTPatcher_hpp
+#define IntelBTPatcher_hpp
 
 #include <Headers/kern_patcher.hpp>
-
-#include <IOKit/usb/IOUSBHostDevice.h>
-
-#define DRV_NAME "ibtp"
-
-class BluetoothDeviceAddress;
-
-typedef struct {
-    void *owner;
-    void *dataBuffer;
-    void *action;
-} AsyncOwnerData;
+#include <Headers/kern_api.hpp>
+#include <IOKit/IOService.h>
+#include <IOKit/usb/IOUSBHostPipe.h>
+#include <IOKit/usb/StandardUSB.h>
 
 class CIntelBTPatcher {
 public:
     bool init();
-    void free();
-    
+    void deinit();
+
+private:
+    static CIntelBTPatcher *callbackIBTPatcher;
+
     void processKext(KernelPatcher &patcher, size_t index, mach_vm_address_t address, size_t size);
-    
-    // Các hàm hook
-    static IOReturn newFindQueueRequest(void *that, unsigned short arg1, void *addr, unsigned short arg2, bool arg3, void **hciRequestPtr);
-    static IOReturn newHostDeviceRequest(void *that, IOService *provider, StandardUSB::DeviceRequest &request, void *data, IOMemoryDescriptor *descriptor, unsigned int &length,IOUSBHostCompletion *completion, unsigned int timeout);
-    
-    // Các hàm hook mới từ PR #446
-    static IOReturn newAsyncIO(void *that, IOMemoryDescriptor* dataBuffer, uint32_t bytesTransferred, IOUSBHostCompletion* completion, unsigned int completionTimeoutMs);
-    static int newInitPipe(void *that, StandardUSB::EndpointDescriptor const *descriptor, StandardUSB::SuperSpeedEndpointCompanionDescriptor const *superDescriptor, AppleUSBHostController *controller, IOUSBHostDevice *device, IOUSBHostInterface *interface, unsigned char a7, unsigned short a8);
-    
-    // Phương thức mới để kiểm tra trạng thái PR #446
-    bool isPR446Enabled();
-    
-    // Các con trỏ hàm gốc
-    mach_vm_address_t oldFindQueueRequest {};
+
+    // ---------- ORIGINAL ROUTES ----------
     mach_vm_address_t oldHostDeviceRequest {};
     mach_vm_address_t oldAsyncIO {};
     mach_vm_address_t oldInitPipe {};
-    
-private:
-    // Biến thành viên static
-    static void *_hookPipeInstance;
-    static AsyncOwnerData *_interruptPipeAsyncOwner;
+
+    // ---------- FAKE PHY FIX (PR #446) ----------
+    struct AsyncOwnerData {
+        void* owner;
+        IOUSBHostCompletion* action;
+        IOMemoryDescriptor* dataBuffer;
+    };
+
+    static void* _hookPipeInstance;
+    static AsyncOwnerData* _interruptPipeAsyncOwner;
     static bool _randomAddressInit;
-    static bool _enablePR446;
+
+    static IOReturn newAsyncIO(void *that, IOMemoryDescriptor* dataBuffer, uint32_t bytesTransferred,
+                               IOUSBHostCompletion* completion, uint32_t completionTimeoutMs);
+    static int newInitPipe(void *that, StandardUSB::EndpointDescriptor const *descriptor,
+                           StandardUSB::SuperSpeedEndpointCompanionDescriptor const *superDescriptor,
+                           AppleUSBHostController *controller, IOUSBHostDevice *device,
+                           IOUSBHostInterface *interface, unsigned char a7, unsigned short a8);
+    static void asyncIOCompletion(void* owner, void* parameter, IOReturn status, uint32_t bytesTransferred);
+
+    // ---------- ORIGINAL FUNCTIONS ----------
+    static IOReturn wrapHostDeviceRequest(void *that, IOService *provider,
+                                          IOUSBHostIORequest *request,
+                                          IOUSBHostCompletion *completion,
+                                          IOUSBDescriptorHeader *descriptor,
+                                          uint32_t length,
+                                          uint32_t timeout);
 };
 
-#endif /* IntelBTPatcher_h */
+#endif /* IntelBTPatcher_hpp */
