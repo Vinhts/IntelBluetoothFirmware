@@ -20,19 +20,13 @@ jobs:
       with:
         xcode-version: '15.0'
         
-    - name: Build IntelBTPatcher Release
+    - name: Build Release Kexts
       run: |
-        echo "=== Building IntelBTPatcher Release ==="
-        xcodebuild -configuration Release -project IntelBTPatcher/IntelBTPatcher.xcodeproj -scheme IntelBTPatcher
-        echo "=== Build completed ==="
+        echo "Building Release version..."
+        xcodebuild -configuration Release -project IntelBTPatcher/IntelBTPatcher.xcodeproj
+        echo "Build completed!"
         
-    - name: Check if kext exists
-      run: |
-        echo "=== Checking build results ==="
-        find . -name "IntelBTPatcher.kext" -type d
-        ls -la IntelBTPatcher/Build/Release/
-        
-    - name: Upload Release Kext
+    - name: Upload Release Kexts
       uses: actions/upload-artifact@v4
       with:
         name: IntelBTPatcher-Release
