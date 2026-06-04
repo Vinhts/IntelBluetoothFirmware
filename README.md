@@ -9,7 +9,10 @@
 
 IntelBluetoothFirmware is a Kernel Extension that uploads Intel Wireless Bluetooth Firmware to provide native Bluetooth in macOS.
 The firmware binary files are from the Linux Open Source Project.
-macOS 26.5: This has been adjusted based on @Z3c0ld's findings. Thanks a lot, @Z3c0ld!
+
+
+MacOS 26.5: This has been adjusted based on @Z3c0ld's findings. Thanks a lot, @Z3c0ld!
+
 ## Documentation
 
 **Please read the docs carefully before using the Kernel Extensions or submitting an Issue Report!**
